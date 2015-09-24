@@ -7,14 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SmartQuant;
 using SmartQuant.Shared;
 using TD.SandDock;
-using StrategyStatus = SmartQuant.StrategyStatus;
 
 namespace DemoDock
 {
     // 注意：将UserControl改成DockWindow后界面设计器将不可用
-    public partial class DemoTabWindow : DockWindow//  //UserControl
+    // 是否继承于IUpdatableToolWindow看项目的需求
+    public partial class DemoTabWindow : DockWindow, IUpdatableToolWindow //  //UserControl
     {
         public DemoTabWindow()
         {
@@ -27,6 +28,9 @@ namespace DemoDock
 
             base.DefaultDockLocation = ContainerDockLocation.Center;
             base.Text = "DemoTab";
+
+            // 与IUpdatableToolWindow配套，表示有定时刷新功能比如说Portfolio
+            SmartQuant.Shared.Global.TimerManager.Add(this);
         }
 
         protected override void OnInit()
@@ -46,10 +50,13 @@ namespace DemoDock
         }
 
         protected override void OnClosing(DockControlClosingEventArgs e)
-        {
-            // 做成策略没有停止就不能关闭的示例
-            if (Global.Framework.StrategyManager.Status == StrategyStatus.Running)
+        {   
+            // 这里写这么长是因为SmartQuant.Global与SmartQuant.Shared.Global冲突
+            // SmartQuant.Global是给策略开发者用
+            // SmartQuant.Shared.Global是给界面开发者用
+            if (SmartQuant.Shared.Global.Framework.StrategyManager.Status == StrategyStatus.Running)
             {
+                // 做成策略没有停止就不能关闭的示例
                 e.Cancel = true;
             }
             
@@ -58,7 +65,15 @@ namespace DemoDock
                 // 如果不关闭的话，不清理和保存
                 return;
             }
+            // 删除定时刷新
+            SmartQuant.Shared.Global.TimerManager.Remove(this);
+
             base.OnClosing(e);
+        }
+
+        void IUpdatableToolWindow.Update()
+        {
+            this.demoTabControl.UpdateGUI();
         }
     }
 }

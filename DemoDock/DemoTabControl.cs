@@ -55,5 +55,12 @@ namespace DemoDock
             }
             viewer.OnTrade(sender,trade);
         }
+
+        public void UpdateGUI()
+        {
+            // 这里可以参考PortfolioList.UpdateGUI()的写法
+            // 它使用了一个消息队列，用于实际刷新时进行要做的事情的判断
+            // 我们也可以使用这种方法解决全部刷新可能占用大量资源的问题
+        }
     }
 }
