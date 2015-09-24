@@ -49,7 +49,7 @@ namespace DemoDock
                 this.viewers.Add(key,viewer);
                 TabPage page = new TabPage();
                 var instrument = base.framework.InstrumentManager.GetById(key);
-                page.Text = instrument.ToString();
+                page.Text = instrument.Symbol;
                 page.Controls.Add(viewer);
                 this.tabViewers.TabPages.Add(page);
             }

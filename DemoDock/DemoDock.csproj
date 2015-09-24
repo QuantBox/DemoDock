@@ -71,6 +71,9 @@
     <Compile Include="DemoTabWindow.Designer.cs">
       <DependentUpon>DemoTabWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="IntMenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MenuLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TabViewer.cs">
