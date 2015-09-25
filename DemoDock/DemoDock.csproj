@@ -59,6 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangePositionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChangePositionForm.Designer.cs">
+      <DependentUpon>ChangePositionForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="DemoTabControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -84,6 +90,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ChangePositionForm.resx">
+      <DependentUpon>ChangePositionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DemoTabControl.resx">
       <DependentUpon>DemoTabControl.cs</DependentUpon>
     </EmbeddedResource>

@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using SmartQuant.Shared;
 
 using MenuLoader;
+using SmartQuant;
+using Global = SmartQuant.Shared.Global;
 
 namespace DemoDock
 {
@@ -36,9 +38,13 @@ namespace DemoDock
             menuPlugin_Demo2.DropDownOpening += menuPlugin_Demo2_DropDownOpening;
 
             // 在Plugin菜单下挂一下Demo菜单
-            ToolStripMenuItem menuPlugin_Demo3 = new ToolStripMenuItem("弹出IDE的窗口并对其进行修改");
+            ToolStripMenuItem menuPlugin_Demo3 = new ToolStripMenuItem("弹出IDE的内部窗口Account并修改");
             PluginMenuItem.DropDownItems.Add(menuPlugin_Demo3);
             menuPlugin_Demo3.Click += menuPlugin_Demo3_Click;
+
+            ToolStripMenuItem menuPlugin_Demo4 = new ToolStripMenuItem("弹出IDE的内部窗口Portfolio并添加");
+            PluginMenuItem.DropDownItems.Add(menuPlugin_Demo4);
+            menuPlugin_Demo4.Click += menuPlugin_Demo4_Click;
         }
 
         void menuPlugin_Demo2_DropDownOpening(object sender, EventArgs e)
@@ -93,6 +99,57 @@ namespace DemoDock
         void btn_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Hello World!");
+        }
+
+        private TreeView tvView;
+        private void menuPlugin_Demo4_Click(object sender, EventArgs e)
+        {
+            var window = Global.DockManager.Open(typeof(PortfolioListWindow));
+
+            // 本来可以不改色，但这里想提示用户这个Dock是被改过的
+            // 这里是改的TreeView的背景色
+            tvView = window.Controls[0].Controls[0] as TreeView;
+
+            tvView.BackColor = Color.Tomato;
+            
+            // 取出上下文菜单
+            var contextMenuStrip = tvView.ContextMenuStrip;
+            // 由于会重复添加，所以这里要判断有多少项，注意不是4个，分隔符也占
+            if (contextMenuStrip.Items.Count < 8)
+            {
+                ToolStripMenuItem menuPlugin_ChangePosition = new ToolStripMenuItem("Change Position...");
+                menuPlugin_ChangePosition.Click += menuPlugin_ChangePosition_Click;
+                contextMenuStrip.Items.Add(menuPlugin_ChangePosition);
+            }
+        }
+
+        void menuPlugin_ChangePosition_Click(object sender, EventArgs e)
+        {
+            // 要用到PortfolioNode这个类，但这个类是内部类
+            if (tvView.SelectedNode == null)
+            {
+                return;
+            }
+
+            var PortfolioName = tvView.SelectedNode.Text;
+
+            var form = new ChangePositionForm();
+            form.Text = string.Format("[{0}]ChangePosition", PortfolioName);
+            if (DialogResult.OK == form.ShowDialog())
+            {
+                var instrument = form.Instrument;
+                var amount = form.Amount;
+
+                var portfolio = Global.Framework.PortfolioManager.Portfolios.GetByName(PortfolioName);
+                if (amount > 0)
+                {
+                    portfolio.Add(new Fill(DateTime.Now, new Order(), instrument, portfolio.Account.CurrencyId, OrderSide.Buy, (double)amount, 0, "XXX"));
+                }
+                else if (amount < 0)
+                {
+                    portfolio.Add(new Fill(DateTime.Now, new Order(), instrument, portfolio.Account.CurrencyId, OrderSide.Sell, (double)-amount, 0, "XXX"));
+                }
+            }
         }
     }
 }
